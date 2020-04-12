@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IProduct } from '../product';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProductService } from '../product.service';
 
 @Component({
   selector: 'pm-product-detail',
@@ -9,22 +10,26 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ProductDetailComponent implements OnInit {
   pageTitle: string = 'Product Details';
+  imageWidth: number = 200;
+  imageMargin: number = 2;
   product: IProduct;
+  errorMessage = '';
 
-  constructor(private route: ActivatedRoute, private router: Router) { }
-
+  constructor(private route: ActivatedRoute, private router: Router, private productService: ProductService) { }
+  
   ngOnInit() {
-    let id = this.route.snapshot.paramMap.get('id');
-    this.product = {
-      "productId": 1,
-      "productName": "Leaf Rake",
-      "productCode": "GDN-0011",
-      "releaseDate": "March 19, 2019",
-      "description": "Leaf rake with 48-inch wooden handle.",
-      "price": 19.95,
-      "starRating": 3.2,
-      "imageUrl": "assets/images/leaf_rake.png"
-    };
+    const param = this.route.snapshot.paramMap.get('id');
+    if (param) {
+      const id = +param;
+      this.getProduct(id);
+    }
+  }
+
+  getProduct(id: number) {
+    this.productService.getProduct(id).subscribe({
+      next: product => this.product = product,
+      error: err => this.errorMessage = err
+    });
   }
 
   onBack(): void {
